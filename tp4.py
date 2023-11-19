@@ -25,24 +25,37 @@ def simular_mensajes(matriz,probabilidades_simbolos,N,M):
 
 matriz=[]
 
-def calcula_entropia_canal(matriz,probabilidades_simbolos):
+def calcula_equivocacion_canal(matriz,probabilidades_simbolos):
     entropia_canal=0
     for i in range(len(matriz)):
         for j in range(len(matriz[i])):
             if(matriz[i][j]!=0):
-                xxx entropia_canal+=matriz[i][j]*probabilidades_simbolos[i]*np.log2(1/matriz[i][j])
+                equivocacion_canal+=matriz[i][j]*probabilidades_simbolos[i]*np.log2(1/matriz[i][j]) #H(A/B)= sum (P(a,b) * log ( 1/P (a /b))) || P(a,b)=P(b/a)*P(b)
     return entropia_canal
 
-def calcula_equivocacion_canal(matriz,probabilidades_simbolos):
+def calcula_entropia_fuente(probabilidades_simbolos):
+    entropia_fuente=0
+    for i in range(len(probabilidades_simbolos)):
+        entropia_fuente+=probabilidades_simbolos[i]*np.log2(1/probabilidades_simbolos[i])
+    return entropia_fuente
 
 
 if (len(sys.argv) ==4 or len(sys.argv) ==5):
-    probabilidades_simbolos,matriz=leeArchivo(sys.argv[1]) #Punto a
     n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     m_mensajes=int(sys.argv[3])
     flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
+    
+    #Leer del archivo probs.txt las probabilidades de la fuente binaria (primera línea) y la matriz del canal binario (segunda y tercera línea).
+    probabilidades_simbolos,matriz=leeArchivo(sys.argv[1]) 
+ 
 
+    #Calcular las entropías del canal, la equivocación y la información mutua.
+    entropia_fuente=calcula_entropia_fuente() #listo
+    equivocacion_canal=calcula_equivocacion_canal() #listo
+    entropia_canal=
+    informacion_mutua=entropia_fuente-equivocacion_canal #listo
 
+#   P(a=0)=txt P(a=1)=txt
 #   P00=P(b=0/a=0) P01=P(b=1/a=0) 
 #   P10=P(b=0/a=1) P11=P(b=1/a=1)
 
