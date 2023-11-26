@@ -1,10 +1,11 @@
 import numpy as np
 import sys
+import random
 
 def leeArchivo(archivo):
     with open(archivo, "r") as f:
         linea= f.readline();
-
+        matriz=[]
         if linea :
             probabilidades_simbolos = linea.split()   
             probabilidades_simbolos = [float(probabilidad) for probabilidad in probabilidades_simbolos] # primero lee probabilidad de 1 y 0
@@ -40,7 +41,7 @@ def calcula_entropia_fuente(probabilidades_simbolos):
 
 def calcula_entropia_canal(probabilidades_salidas):
     entropia_canal=0
-    for i in range(len(matriz)): 
+    for i in range(len(probabilidades_salidas)): 
         if probabilidades_salidas[i]!=0:
             entropia_canal+=probabilidades_salidas[i]*np.log2(1/probabilidades_salidas[i])       
     return entropia_canal
@@ -96,31 +97,53 @@ def calcula_paridad_cruzada(mensaje):
             if mensaje[j][i]==1:
                 contador+=1
         if contador%2==0:
-            nuevo_mensaje.append(np.append(mensaje[i],0))
+            nuevo_mensaje.append(0)
         else:
-            nuevo_mensaje.append(np.append(mensaje[i],1)) 
+            nuevo_mensaje.append(1)
             contador_columnas+=1
 
     if contador_columnas%2==0 != contador_filas%2==0: # EL != SERIA LA OPERACION XOR.  Si son iguales va 0, si son distintos va 1
-        nuevo_mensaje.append(np.append(mensaje[i],1))
+        nuevo_mensaje.append(1)
     else:
-        nuevo_mensaje.append(np.append(mensaje[i],0))
+        nuevo_mensaje.append(0)
         
     mensaje_con_paridad_cruzada.append(nuevo_mensaje)
+    for i in range(len(mensaje_con_paridad_cruzada)-1):
+        print(mensaje_con_paridad_cruzada[i])
+        #print(mensaje[i])
+        print(" ")
+    print(mensaje_con_paridad_cruzada[len(mensaje_con_paridad_cruzada)-1])
     return mensaje_con_paridad_cruzada
 
-
+def enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada): #Solo vale para binario
+    mensaje_enviado_por_canal=[]
+    for i in range(len(mensaje_con_paridad_cruzada)):
+        mensaje_enviado_por_canal.append([])
+        for j in range(len(mensaje_con_paridad_cruzada[i])):
+            if random.uniform(0,1) < matriz[mensaje_con_paridad_cruzada[i,j],0]: 
+                mensaje_enviado_por_canal[i].append(0)
+            else:
+                mensaje_enviado_por_canal[i].append(1)
+    print("Mensaje enviado por canal")
+    for i in range(len(mensaje_enviado_por_canal)):
+        print(mensaje_enviado_por_canal[i])
+    return mensaje_enviado_por_canal
+                
 
 def main():
-    if (len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
-        n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-        m_mensajes=int(sys.argv[3])
-        flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
-        archivo=sys.argv[1]
-        #flag_paridad_cruzada= True
-        #archivo="tp4_sample6.txt"
-        #n_mensajes=100
-        #m_mensajes=100
+    if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
+        #n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        #m_mensajes=int(sys.argv[3])
+       #flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
+        #archivo=sys.argv[1]
+        flag_paridad_cruzada= True
+        archivo="tp4_sample6.txt"
+        n_mensajes=5
+        m_mensajes=10
+        random.seed(2)
+        print("Simulacion de mensajes")
+        for i in range(10):  
+            print(random.uniform(0.0,1.0))
         #Leer del archivo probs.txt las probabilidades de la fuente binaria (primera línea) y la matriz del canal binario (segunda y tercera línea).
         probabilidades_simbolos,matriz=leeArchivo(archivo)
         matriz_probabilidades_sucesos_simultaneos=calcula_matriz_probabilidades_sucesos_simultaneos(matriz,probabilidades_simbolos) #listo
@@ -149,7 +172,17 @@ def main():
     #   P10=P(b=0/a=1) P11=P(b=1/a=1)
 
         simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
+
+
+        #simulacion_mensajes=[[0, 1, 1, 1, 1, 1, 1, 0, 0, 0],# 0
+        #                     [0, 0, 1, 1, 1, 0, 0, 1, 1, 1],# 0
+        #                     [1, 1, 1, 1, 0, 1, 1, 0, 0, 0],# 0
+        #                     [0, 1, 0, 0, 1, 1, 0, 1, 0, 0],# 0
+        #                     [0, 0, 1, 0, 1, 0, 1, 1, 0, 1]]# 1
+        #                    # 1  1  0  1  0  1  1  1  1  0    0
         mensaje_con_paridad_cruzada=calcula_paridad_cruzada(simulacion_mensajes)
+
+        mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada)
     else:
         print("Error en los parametros de entrada")
         print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
