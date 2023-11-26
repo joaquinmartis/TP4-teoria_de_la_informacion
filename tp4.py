@@ -23,8 +23,6 @@ def simular_mensajes(matriz,probabilidades_simbolos,N,M):
 
     return mensaje
 
-matriz=[]
-
 def calcula_equivocacion_canal(matriz,probabilidades_simbolos):
     equivocacion_canal=0
     for i in range(len(matriz)):
@@ -114,7 +112,7 @@ def calcula_paridad_cruzada(mensaje):
 
 
 def main():
-    if (1 or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
+    if (len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
         n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         m_mensajes=int(sys.argv[3])
         flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
