@@ -129,6 +129,41 @@ def enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada): #Solo vale par
         print(mensaje_enviado_por_canal[i])
     return mensaje_enviado_por_canal
                 
+def verificaFilas(matriz):
+    filasIncorrectas=[]
+    # Obtener las dimensiones de la matriz
+    N = len(matriz)
+    M = len(matriz[0])
+
+    for i in range(N-1):
+        suma_fila = sum(matriz[i][j] for j in range(M-1))
+        # Comparar con el elemento en la posición N de la fila
+        if suma_fila % 2 != matriz[i][M-1]:
+            filasIncorrectas.append(i)
+    return filasIncorrectas               
+
+def verificaColumnas(matriz):
+    columnasIncorrectas=[]
+    # Obtener las dimensiones de la matriz
+    N = len(matriz)
+    M = len(matriz[0])
+
+    for j in range(M-1):
+        suma_columna = [sum(matriz[i][j] for i in range(N-1))]
+        # Comparar con el elemento en la posición N de la fila
+        if suma_columna % 2 != matriz[N-1][j]:
+            columnasIncorrectas.append(j)
+    return columnasIncorrectas    
+
+
+def verificaBitCruzado(matriz):
+    columnasIncorrectas=[]
+    # Obtener las dimensiones de la matriz
+    N = len(matriz)
+    M = len(matriz[0])
+    
+    bits_control= sum(matriz[N-1][j] for j in range(M-1)) + sum(matriz[i][M-1] for i in range(N-1))
+    return bits_control % 2 == matriz[N-1][M-1] 
 
 if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
     n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
@@ -169,6 +204,7 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
     print("Información mutua, I(A,B)=", informacion_mutua)
 
     simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
+    print
 
 
         #simulacion_mensajes=[[0, 1, 1, 1, 1, 1, 1, 0, 0, 0],# 0
@@ -178,10 +214,42 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
         #                     [0, 0, 1, 0, 1, 0, 1, 1, 0, 1]]# 1
         #                    # 1  1  0  1  0  1  1  1  1  0    0
     if(flag_paridad_cruzada):
-        mensaje_con_paridad_cruzada=calcula_paridad_cruzada(simulacion_mensajes)
-    mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada)
+        mensaje_a_enviar=calcula_paridad_cruzada(simulacion_mensajes)
+    else:
+        mensaje_a_enviar= simulacion_mensajes
+
+    mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_a_enviar)
+    correctos=0
+    errores=0
+    corregidos=0
     if(flag_paridad_cruzada):
         print("detectar errores")
+        filas_error= verificaFilas(mensaje_a_enviar)
+        columnas_error= verificaColumnas(mensaje_a_enviar)
+        bitcruzado=verificaBitCruzado(mensaje_a_enviar)
+        if len(filas_error)==0 :
+            if len(columnas_error)==0: #si el bit de cruzado es incorrecto, se considera un unico error (del bit de cruzado)
+                correctos = n_mensajes-1 * m_mensajes-1
+            elif len(columnas_error)==1 & bitcruzado!=1: #si hay solo una columna no coincidente y el bit cruzado no es correcto (se considera error de bit control de columna y por ende la info esta ok)
+                correctos = n_mensajes-1 * m_mensajes-1
+            else:
+                errores = n_mensajes-1 * m_mensajes-1
+        elif len(columnas_error)==0:
+            if len(filas_error)==1 & bitcruzado!=1:
+                correctos = n_mensajes-1 * m_mensajes-1
+            else:
+                errores = n_mensajes-1 * m_mensajes-1
+        elif len(columnas_error)+len(filas_error) ==2 & bitcruzado==1:
+            errores=1
+            correctos= (n_mensajes-1 * m_mensajes-1)-1
+            corregidos=1
+            if matriz[filas_error[0],columnas_error[0]] == 1:
+                 matriz[filas_error[0],columnas_error[0]]=0
+            else:
+                 matriz[filas_error[0],columnas_error[0]]=1
+        else:
+            errores = len(filas_error) * len(columnas_error)
+        
 else:
     print("Error en los parametros de entrada")
     print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
