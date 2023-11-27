@@ -249,12 +249,12 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
         if len(filas_error)==0 :
             if len(columnas_error)==0: #si el bit de cruzado es incorrecto, se considera un unico error (del bit de cruzado)
                 correctos = n_mensajes
-            elif len(columnas_error)==1 & bitcruzado!=1: #si hay solo una columna no coincidente y el bit cruzado no es correcto (se considera error de bit control de columna y por ende la info esta ok)
+            elif len(columnas_error)==1 and bitcruzado!=1: #si hay solo una columna no coincidente y el bit cruzado no es correcto (se considera error de bit control de columna y por ende la info esta ok)
                 correctos = n_mensajes
             else:
                 errores = n_mensajes #una columna abarca todos los mensajes
         elif len(columnas_error)==0:
-            if len(filas_error)==1 & bitcruzado!=1:
+            if len(filas_error)==1 and bitcruzado!=1:
                 correctos = n_mensajes
             else:
                 errores = len(filas_error) #los errores se toman en las filas detectadas
