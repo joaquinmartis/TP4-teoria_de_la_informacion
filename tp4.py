@@ -120,13 +120,10 @@ def enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada): #Solo vale par
     for i in range(len(mensaje_con_paridad_cruzada)):
         mensaje_enviado_por_canal.append([])
         for j in range(len(mensaje_con_paridad_cruzada[i])):
-            if random.uniform(0,1) < matriz[mensaje_con_paridad_cruzada[i,j],0]: 
+            if random.uniform(0,1) < matriz[mensaje_con_paridad_cruzada[i][j]][0]: 
                 mensaje_enviado_por_canal[i].append(0)
             else:
                 mensaje_enviado_por_canal[i].append(1)
-    print("Mensaje enviado por canal")
-    for i in range(len(mensaje_enviado_por_canal)):
-        print(mensaje_enviado_por_canal[i])
     return mensaje_enviado_por_canal
                 
 def verificaFilas(matriz):
@@ -149,7 +146,7 @@ def verificaColumnas(matriz):
     M = len(matriz[0])
 
     for j in range(M-1):
-        suma_columna = [sum(matriz[i][j] for i in range(N-1))]
+        suma_columna = sum(matriz[i][j] for i in range(N-1))
         # Comparar con el elemento en la posición N de la fila
         if suma_columna % 2 != matriz[N-1][j]:
             columnasIncorrectas.append(j)
@@ -169,7 +166,7 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
     n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     m_mensajes=int(sys.argv[3])
     flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
-    archivo=sys.argv[1]
+    archivo="tp4_sample6.txt" #sys.argv[1]
 
     #Leer del archivo probs.txt las probabilidades de la fuente binaria (primera línea) y la matriz del canal binario (segunda y tercera línea).
     probabilidades_simbolos,matriz=leeArchivo(archivo)
@@ -219,14 +216,17 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
         mensaje_a_enviar= simulacion_mensajes
 
     mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_a_enviar)
+    print("Mensaje enviado por canal")
+    for i in range(len(mensaje_enviado_por_canal)):
+        print(mensaje_enviado_por_canal[i])
     correctos=0
     errores=0
     corregidos=0
     if(flag_paridad_cruzada):
-        print("detectar errores")
-        filas_error= verificaFilas(mensaje_a_enviar)
-        columnas_error= verificaColumnas(mensaje_a_enviar)
-        bitcruzado=verificaBitCruzado(mensaje_a_enviar)
+        print("Deteccion de errores")
+        filas_error= verificaFilas(mensaje_enviado_por_canal)
+        columnas_error= verificaColumnas(mensaje_enviado_por_canal)
+        bitcruzado=verificaBitCruzado(mensaje_enviado_por_canal)
         if len(filas_error)==0 :
             if len(columnas_error)==0: #si el bit de cruzado es incorrecto, se considera un unico error (del bit de cruzado)
                 correctos = n_mensajes
