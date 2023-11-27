@@ -106,7 +106,7 @@ def calcula_paridad_cruzada(mensaje):
         nuevo_mensaje.append(1)
     else:
         nuevo_mensaje.append(0)
-        
+    nuevo_mensaje=np.array(nuevo_mensaje)
     mensaje_con_paridad_cruzada.append(nuevo_mensaje)
     for i in range(len(mensaje_con_paridad_cruzada)-1):
         print(mensaje_con_paridad_cruzada[i])
@@ -126,47 +126,47 @@ def enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada): #Solo vale par
                 mensaje_enviado_por_canal[i].append(1)
     return mensaje_enviado_por_canal
                 
-def verificaFilas(matriz):
+def verificaFilas(mensaje_enviado_por_canal):
     filasIncorrectas=[]
     # Obtener las dimensiones de la matriz
-    N = len(matriz)
-    M = len(matriz[0])
+    N = len(mensaje_enviado_por_canal)
+    M = len(mensaje_enviado_por_canal[0])
 
     for i in range(N-1):
-        suma_fila = sum(matriz[i][j] for j in range(M-1))
+        suma_fila = sum(mensaje_enviado_por_canal[i][j] for j in range(M-1))
         # Comparar con el elemento en la posición N de la fila
-        if suma_fila % 2 != matriz[i][M-1]:
+        if suma_fila % 2 != mensaje_enviado_por_canal[i][M-1]:
             filasIncorrectas.append(i)
     return filasIncorrectas               
 
-def verificaColumnas(matriz):
+def verificaColumnas(mensaje_enviado_por_canal):
     columnasIncorrectas=[]
     # Obtener las dimensiones de la matriz
-    N = len(matriz)
-    M = len(matriz[0])
+    N = len(mensaje_enviado_por_canal)
+    M = len(mensaje_enviado_por_canal[0])
 
     for j in range(M-1):
-        suma_columna = sum(matriz[i][j] for i in range(N-1))
+        suma_columna = sum(mensaje_enviado_por_canal[i][j] for i in range(N-1))
         # Comparar con el elemento en la posición N de la fila
-        if suma_columna % 2 != matriz[N-1][j]:
+        if suma_columna % 2 != mensaje_enviado_por_canal[N-1][j]:
             columnasIncorrectas.append(j)
     return columnasIncorrectas    
 
 
-def verificaBitCruzado(matriz):
+def verificaBitCruzado(mensaje_enviado_por_canal):
     columnasIncorrectas=[]
     # Obtener las dimensiones de la matriz
-    N = len(matriz)
-    M = len(matriz[0])
+    N = len(mensaje_enviado_por_canal)
+    M = len(mensaje_enviado_por_canal[0])
     
-    bits_control= sum(matriz[N-1][j] for j in range(M-1)) + sum(matriz[i][M-1] for i in range(N-1))
-    return bits_control % 2 == matriz[N-1][M-1] 
+    bits_control= sum(mensaje_enviado_por_canal[N-1][j] for j in range(M-1)) + sum(mensaje_enviado_por_canal[i][M-1] for i in range(N-1))
+    return bits_control % 2 == mensaje_enviado_por_canal[N-1][M-1] 
 
 if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
-    n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-    m_mensajes=int(sys.argv[3])
-    flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
-    archivo="tp4_sample6.txt" #sys.argv[1]
+    n_mensajes=5#int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+    m_mensajes=6#int(sys.argv[3])
+    flag_paridad_cruzada= (True or (len(sys.argv) == 5) and (sys.argv[4]=="-p"))
+    archivo="prueba.txt" #sys.argv[1]
 
     #Leer del archivo probs.txt las probabilidades de la fuente binaria (primera línea) y la matriz del canal binario (segunda y tercera línea).
     probabilidades_simbolos,matriz=leeArchivo(archivo)
@@ -202,7 +202,7 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
 
     simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
     print
-
+    print("Matriz: " + str(matriz))
 
         #simulacion_mensajes=[[0, 1, 1, 1, 1, 1, 1, 0, 0, 0],# 0
         #                     [0, 0, 1, 1, 1, 0, 0, 1, 1, 1],# 0
@@ -210,23 +210,42 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
         #                     [0, 1, 0, 0, 1, 1, 0, 1, 0, 0],# 0
         #                     [0, 0, 1, 0, 1, 0, 1, 1, 0, 1]]# 1
         #                    # 1  1  0  1  0  1  1  1  1  0    0
+    #
     if(flag_paridad_cruzada):
         mensaje_a_enviar=calcula_paridad_cruzada(simulacion_mensajes)
     else:
         mensaje_a_enviar= simulacion_mensajes
-
+    print("Mensaje a enviar")
+    for i in range(len(mensaje_a_enviar)):
+        print(mensaje_a_enviar[i])
     mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_a_enviar)
     print("Mensaje enviado por canal")
-    for i in range(len(mensaje_enviado_por_canal)):
-        print(mensaje_enviado_por_canal[i])
+    prueba=np.array(mensaje_enviado_por_canal)
+    for i in range(len(prueba)):
+        print(prueba[i])
+
+    #Pruebas-------------------------------------
+    mensaje_a_enviar=np.array([[0, 0, 1, 0, 1, 1, 1], [1, 1, 1, 1, 1 ,0 ,1],    [1, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 1, 1, 1],    [1 ,1, 0, 1, 0, 0, 1],    [1 ,0 ,0, 1 ,0 ,1, 0]])
+    mensaje_enviado_por_canal=np.array([[1, 0, 1, 0, 1, 1, 1], [1, 1, 1, 1, 1 ,0 ,1],    [1, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 1, 1, 1],    [1 ,1, 0, 1, 0, 0, 1],    [1 ,0 ,0, 1 ,0 ,1, 0]])
+
+
+
+
+    # --------------------------------------------    
     correctos=0
     errores=0
     corregidos=0
+    mensaje_corregido=mensaje_enviado_por_canal
+    print(mensaje_enviado_por_canal[0])
     if(flag_paridad_cruzada):
-        print("Deteccion de errores")
+        print("Deteccion de errores con paridad cruzada")
         filas_error= verificaFilas(mensaje_enviado_por_canal)
         columnas_error= verificaColumnas(mensaje_enviado_por_canal)
         bitcruzado=verificaBitCruzado(mensaje_enviado_por_canal)
+        print("Filas incorrectas: ",len(filas_error))
+        print("Columnas incorrectas: ",len(columnas_error))
+        print("Bit de paridad cruzada incorrecto: ",bitcruzado)
+
         if len(filas_error)==0 :
             if len(columnas_error)==0: #si el bit de cruzado es incorrecto, se considera un unico error (del bit de cruzado)
                 correctos = n_mensajes
@@ -239,17 +258,20 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
                 correctos = n_mensajes
             else:
                 errores = len(filas_error) #los errores se toman en las filas detectadas
-        elif len(columnas_error)+len(filas_error) ==2 & bitcruzado==1:
+        elif (len(columnas_error)+len(filas_error))==2 and bitcruzado==True:
             errores=1
             correctos= n_mensajes-1 
             corregidos=1
-            if matriz[filas_error[0],columnas_error[0]] == 1:
-                 matriz[filas_error[0],columnas_error[0]]=0
+            if mensaje_enviado_por_canal[filas_error[0],columnas_error[0]] == 1:
+                 mensaje_corregido[filas_error[0],columnas_error[0]]=0
             else:
-                 matriz[filas_error[0],columnas_error[0]]=1
+                 mensaje_corregido[filas_error[0],columnas_error[0]]=1
         else:
             errores = n_mensajes
         print ("Se recibieron ",n_mensajes, " de los cuales se recibieron correctamente: ",correctos ," y ", errores," fueron errores. Pudieron corregirse ",corregidos," errores.")
+        print("Mensaje corregido")
+        print("Enviado:   " + str(mensaje_enviado_por_canal[filas_error[0]]))
+        print("Corregido: " + str(mensaje_corregido[filas_error[0]]))
 else:
     print("Error en los parametros de entrada")
     print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
