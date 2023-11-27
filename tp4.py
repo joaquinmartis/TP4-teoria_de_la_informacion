@@ -229,27 +229,27 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
         bitcruzado=verificaBitCruzado(mensaje_a_enviar)
         if len(filas_error)==0 :
             if len(columnas_error)==0: #si el bit de cruzado es incorrecto, se considera un unico error (del bit de cruzado)
-                correctos = n_mensajes-1 * m_mensajes-1
+                correctos = n_mensajes
             elif len(columnas_error)==1 & bitcruzado!=1: #si hay solo una columna no coincidente y el bit cruzado no es correcto (se considera error de bit control de columna y por ende la info esta ok)
-                correctos = n_mensajes-1 * m_mensajes-1
+                correctos = n_mensajes
             else:
-                errores = n_mensajes-1 * m_mensajes-1
+                errores = n_mensajes #una columna abarca todos los mensajes
         elif len(columnas_error)==0:
             if len(filas_error)==1 & bitcruzado!=1:
-                correctos = n_mensajes-1 * m_mensajes-1
+                correctos = n_mensajes
             else:
-                errores = n_mensajes-1 * m_mensajes-1
+                errores = len(filas_error) #los errores se toman en las filas detectadas
         elif len(columnas_error)+len(filas_error) ==2 & bitcruzado==1:
             errores=1
-            correctos= (n_mensajes-1 * m_mensajes-1)-1
+            correctos= n_mensajes-1 
             corregidos=1
             if matriz[filas_error[0],columnas_error[0]] == 1:
                  matriz[filas_error[0],columnas_error[0]]=0
             else:
                  matriz[filas_error[0],columnas_error[0]]=1
         else:
-            errores = len(filas_error) * len(columnas_error)
-        
+            errores = n_mensajes
+        print ("Se recibieron ",n_mensajes, " de los cuales se recibieron correctamente: ",correctos ," y ", errores," fueron errores. Pudieron corregirse ",corregidos," errores.")
 else:
     print("Error en los parametros de entrada")
     print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
