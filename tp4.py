@@ -4,7 +4,7 @@ import random
 
 def leeArchivo(archivo):
     with open(archivo, "r") as f:
-        linea= f.readline();
+        linea= f.readline()
         matriz=[]
         if linea :
             probabilidades_simbolos = linea.split()   
@@ -23,12 +23,18 @@ def simular_mensajes(matriz,probabilidades_simbolos,N,M):
         mensaje.append(np.random.choice(len(probabilidades_simbolos),M,probabilidades_simbolos)) #Crea N mensajes de longitud M
     return mensaje
 
-def calcula_equivocacion_canal(matriz,probabilidades_simbolos):
+def calcula_equivocacion_canal2(matriz,probabilidades_simbolos):
     equivocacion_canal=0
     for i in range(len(matriz)):
         for j in range(len(matriz[i])):
             if(matriz[i][j]!=0):
                 equivocacion_canal+=matriz[i][j]*probabilidades_simbolos[i]*np.log2(1/matriz[i][j]) #H(A/B)= sum (P(a,b) * log ( 1/P (a /b))) || P(a,b)=P(b/a)*P(b)
+    return equivocacion_canal
+
+def calcula_equivocacion_canal(entropia_a_posteriori,probabilidades_salidas):
+    equivocacion_canal=0
+    for i in range(len(entropia_a_posteriori)):
+        equivocacion_canal+=entropia_a_posteriori[i]*probabilidades_salidas[i]
     return equivocacion_canal
 
 def calcula_entropia_fuente(probabilidades_simbolos):
@@ -222,7 +228,7 @@ def main():
         entropia_a_posteriori=calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_sucesos_simultaneos) #MAL
             
         #Equivocacion
-        equivocacion_canal=calcula_equivocacion_canal(matriz,probabilidades_simbolos) #listo
+        equivocacion_canal=calcula_equivocacion_canal(entropia_a_posteriori,probabilidades_salidas)
             
         #Entropía del canal Afín
         entropia_afin= entropia_canal - equivocacion_canal
@@ -244,7 +250,13 @@ def main():
         simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
 
         mensaje_a_enviar=aplica_paridad_cruzada(simulacion_mensajes,flag_paridad_cruzada)
-
+        #aux=[[1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+        #     [1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
+        #     [0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1],
+        #     [0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],
+        #     [1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+        #     [1 ,0, 1, 1, 0, 1, 0, 1, 1, 0, 0]]
+        #mensaje_a_enviar=np.array(aux)
         print("Mensaje a enviar")
         for i in range(len(mensaje_a_enviar)):
             print(mensaje_a_enviar[i])
