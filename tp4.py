@@ -192,9 +192,9 @@ def verificacion_y_correccion(mensaje_enviado_por_canal,flag_paridad_cruzada,n_m
             correctos= n_mensajes-1 
             corregidos=1
             if mensaje_enviado_por_canal[filas_error[0]][columnas_error[0]] == 1:
-                 mensaje_corregido[filas_error[0],columnas_error[0]]=0
+                 mensaje_corregido[filas_error[0]][columnas_error[0]]=0
             else:
-                 mensaje_corregido[filas_error[0],columnas_error[0]]=1
+                 mensaje_corregido[filas_error[0]][columnas_error[0]]=1
             print("Mensaje corregido")
             print("Enviado:   " + str(mensaje_enviado_por_canal[filas_error[0]]))
             print("Corregido: " + str(mensaje_corregido[filas_error[0]]))
