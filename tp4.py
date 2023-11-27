@@ -183,4 +183,5 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
     if(flag_paridad_cruzada):
         print("detectar errores")
 else:
+    print("Error en los parametros de entrada")
     print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
