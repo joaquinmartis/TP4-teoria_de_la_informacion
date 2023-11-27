@@ -21,7 +21,6 @@ def simular_mensajes(matriz,probabilidades_simbolos,N,M):
     mensaje=[]
     for i in range(N):
         mensaje.append(np.random.choice(len(probabilidades_simbolos),M,probabilidades_simbolos)) #Crea N mensajes de longitud M
-
     return mensaje
 
 def calcula_equivocacion_canal(matriz,probabilidades_simbolos):
@@ -75,44 +74,42 @@ def calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_
     print(entropias_a_posteriori)
     return entropias_a_posteriori
 
-def calcula_paridad_cruzada(mensaje):
-    mensaje_con_paridad_cruzada=[]
-    contador_columnas=0
-    contador_filas=0
-    for i in range(len(mensaje)): # Primero calcula paridad de las filas
-        contador=0
-        for j in range(len(mensaje[i])):
-            if mensaje[i][j]==1:
-                contador+=1
-        if contador%2==0:
-            mensaje_con_paridad_cruzada.append(np.append(mensaje[i],0))
-        else:
-            mensaje_con_paridad_cruzada.append(np.append(mensaje[i],1))
-            contador_filas+=1
-    nuevo_mensaje=[] #Luego calcula la paridad de las columnas
+def aplica_paridad_cruzada(mensaje,flag_paridad_cruzada):
+    if flag_paridad_cruzada==True:
+        mensaje_con_paridad_cruzada=[]
+        contador_columnas=0
+        contador_filas=0
+        for i in range(len(mensaje)): # Primero calcula paridad de las filas
+            contador=0
+            for j in range(len(mensaje[i])):
+                if mensaje[i][j]==1:
+                    contador+=1
+            if contador%2==0:
+                mensaje_con_paridad_cruzada.append(np.append(mensaje[i],0))
+            else:
+                mensaje_con_paridad_cruzada.append(np.append(mensaje[i],1))
+                contador_filas+=1
+        nuevo_mensaje=[] #Luego calcula la paridad de las columnas
 
-    for i in range(len(mensaje[0])): 
-        contador=0
-        for j in range(len(mensaje)):
-            if mensaje[j][i]==1:
-                contador+=1
-        if contador%2==0:
-            nuevo_mensaje.append(0)
-        else:
+        for i in range(len(mensaje[0])): 
+            contador=0
+            for j in range(len(mensaje)):
+                if mensaje[j][i]==1:
+                    contador+=1
+            if contador%2==0:
+                nuevo_mensaje.append(0)
+            else:
+                nuevo_mensaje.append(1)
+                contador_columnas+=1
+
+        if contador_columnas%2==0 != contador_filas%2==0: # EL != SERIA LA OPERACION XOR.  Si son iguales va 0, si son distintos va 1
             nuevo_mensaje.append(1)
-            contador_columnas+=1
-
-    if contador_columnas%2==0 != contador_filas%2==0: # EL != SERIA LA OPERACION XOR.  Si son iguales va 0, si son distintos va 1
-        nuevo_mensaje.append(1)
+        else:
+            nuevo_mensaje.append(0)
+        nuevo_mensaje=np.array(nuevo_mensaje)
+        mensaje_con_paridad_cruzada.append(nuevo_mensaje)
     else:
-        nuevo_mensaje.append(0)
-    nuevo_mensaje=np.array(nuevo_mensaje)
-    mensaje_con_paridad_cruzada.append(nuevo_mensaje)
-    for i in range(len(mensaje_con_paridad_cruzada)-1):
-        print(mensaje_con_paridad_cruzada[i])
-        #print(mensaje[i])
-        print(" ")
-    print(mensaje_con_paridad_cruzada[len(mensaje_con_paridad_cruzada)-1])
+        mensaje_con_paridad_cruzada=mensaje
     return mensaje_con_paridad_cruzada
 
 def enviar_mensaje_por_canal(matriz,mensaje_con_paridad_cruzada): #Solo vale para binario
@@ -162,81 +159,13 @@ def verificaBitCruzado(mensaje_enviado_por_canal):
     bits_control= sum(mensaje_enviado_por_canal[N-1][j] for j in range(M-1)) + sum(mensaje_enviado_por_canal[i][M-1] for i in range(N-1))
     return bits_control % 2 == mensaje_enviado_por_canal[N-1][M-1] 
 
-if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1--------------------------------------
-    n_mensajes=5#int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-    m_mensajes=6#int(sys.argv[3])
-    flag_paridad_cruzada= (True or (len(sys.argv) == 5) and (sys.argv[4]=="-p"))
-    archivo="prueba.txt" #sys.argv[1]
-
-    #Leer del archivo probs.txt las probabilidades de la fuente binaria (primera línea) y la matriz del canal binario (segunda y tercera línea).
-    probabilidades_simbolos,matriz=leeArchivo(archivo)
-    matriz_probabilidades_sucesos_simultaneos=calcula_matriz_probabilidades_sucesos_simultaneos(matriz,probabilidades_simbolos) #listo
-
-    #Calcular las entropías del canal, la equivocación y la información mutua.
-    probabilidades_salidas=calcula_probabilidades_salidas(matriz,probabilidades_simbolos) #Obtengo las probabilidades de salida de cada simbolo FUNCIONA
-
-
-    entropia_fuente=calcula_entropia_fuente(probabilidades_simbolos) # H(A)
-    entropia_canal=calcula_entropia_canal(probabilidades_salidas) # H(B)
-    entropia_a_posteriori=calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_sucesos_simultaneos) #MAL
-        
-    #Equivocacion
-    equivocacion_canal=calcula_equivocacion_canal(matriz,probabilidades_simbolos) #listo
-        
-    #Entropía del canal Afín
-    entropia_afin= entropia_canal - equivocacion_canal
-
-    #Informacion Mutua
-    informacion_mutua=entropia_fuente-equivocacion_canal #listo
-
-    print("Entropía de la fuente o a-priori, H(A) =", entropia_fuente)
-    print("Entropia del canal, H(B) =", entropia_canal)
-    print("Entropia afín, H(A,B) =", entropia_afin)
-    print("Entropía a posteriori:")
-    i=0
-    for valor in entropia_a_posteriori:
-        print("H(A/B=",1,") = ",valor)
-        i=i+1
-    print("Equivocacion, H(A/B)=",equivocacion_canal)
-    print("Información mutua, I(A,B)=", informacion_mutua)
-
-    simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
-    print
-    print("Matriz: " + str(matriz))
-
-        #simulacion_mensajes=[[0, 1, 1, 1, 1, 1, 1, 0, 0, 0],# 0
-        #                     [0, 0, 1, 1, 1, 0, 0, 1, 1, 1],# 0
-        #                     [1, 1, 1, 1, 0, 1, 1, 0, 0, 0],# 0
-        #                     [0, 1, 0, 0, 1, 1, 0, 1, 0, 0],# 0
-        #                     [0, 0, 1, 0, 1, 0, 1, 1, 0, 1]]# 1
-        #                    # 1  1  0  1  0  1  1  1  1  0    0
-    #
-    if(flag_paridad_cruzada):
-        mensaje_a_enviar=calcula_paridad_cruzada(simulacion_mensajes)
-    else:
-        mensaje_a_enviar= simulacion_mensajes
-    print("Mensaje a enviar")
-    for i in range(len(mensaje_a_enviar)):
-        print(mensaje_a_enviar[i])
-    mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_a_enviar)
-    print("Mensaje enviado por canal")
-    prueba=np.array(mensaje_enviado_por_canal)
-    for i in range(len(prueba)):
-        print(prueba[i])
-
-    #Pruebas-------------------------------------
-    mensaje_a_enviar=np.array([[0, 0, 1, 0, 1, 1, 1], [1, 1, 1, 1, 1 ,0 ,1],    [1, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 1, 1, 1],    [1 ,1, 0, 1, 0, 0, 1],    [1 ,0 ,0, 1 ,0 ,1, 0]])
-    mensaje_enviado_por_canal=np.array([[1, 0, 1, 0, 1, 1, 1], [1, 1, 1, 1, 1 ,0 ,1],    [1, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 1, 1, 1],    [1 ,1, 0, 1, 0, 0, 1],    [1 ,0 ,0, 1 ,0 ,1, 0]])
-
-
-
-
-    # --------------------------------------------    
+def verificacion_y_correccion(mensaje_enviado_por_canal,flag_paridad_cruzada,n_mensajes):
     correctos=0
     errores=0
     corregidos=0
-    mensaje_corregido=mensaje_enviado_por_canal
-    print(mensaje_enviado_por_canal[0])
+
+    mensaje_corregido=mensaje_enviado_por_canal.copy()
+    
     if(flag_paridad_cruzada):
         print("Deteccion de errores con paridad cruzada")
         filas_error= verificaFilas(mensaje_enviado_por_canal)
@@ -262,16 +191,75 @@ if (True or len(sys.argv) ==4 or len(sys.argv) ==5): #SACAR EL 1----------------
             errores=1
             correctos= n_mensajes-1 
             corregidos=1
-            if mensaje_enviado_por_canal[filas_error[0],columnas_error[0]] == 1:
+            if mensaje_enviado_por_canal[filas_error[0]][columnas_error[0]] == 1:
                  mensaje_corregido[filas_error[0],columnas_error[0]]=0
             else:
                  mensaje_corregido[filas_error[0],columnas_error[0]]=1
+            print("Mensaje corregido")
+            print("Enviado:   " + str(mensaje_enviado_por_canal[filas_error[0]]))
+            print("Corregido: " + str(mensaje_corregido[filas_error[0]]))
         else:
             errores = n_mensajes
         print ("Se recibieron ",n_mensajes, " de los cuales se recibieron correctamente: ",correctos ," y ", errores," fueron errores. Pudieron corregirse ",corregidos," errores.")
-        print("Mensaje corregido")
-        print("Enviado:   " + str(mensaje_enviado_por_canal[filas_error[0]]))
-        print("Corregido: " + str(mensaje_corregido[filas_error[0]]))
-else:
-    print("Error en los parametros de entrada")
-    print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
+
+def main():
+    if (len(sys.argv) ==4 or len(sys.argv) ==5):
+        n_mensajes=int(sys.argv[2])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        m_mensajes=int(sys.argv[3])
+        flag_paridad_cruzada= ((len(sys.argv) == 5) and (sys.argv[4]=="-p"))
+        archivo=sys.argv[1]
+
+        #Leer del archivo probs.txt las probabilidades de la fuente binaria (primera línea) y la matriz del canal binario (segunda y tercera línea).
+        probabilidades_simbolos,matriz=leeArchivo(archivo)
+        matriz_probabilidades_sucesos_simultaneos=calcula_matriz_probabilidades_sucesos_simultaneos(matriz,probabilidades_simbolos) #listo
+
+        #Calcular las entropías del canal, la equivocación y la información mutua.
+        probabilidades_salidas=calcula_probabilidades_salidas(matriz,probabilidades_simbolos) #Obtengo las probabilidades de salida de cada simbolo FUNCIONA
+
+
+        entropia_fuente=calcula_entropia_fuente(probabilidades_simbolos) # H(A)
+        entropia_canal=calcula_entropia_canal(probabilidades_salidas) # H(B)
+        entropia_a_posteriori=calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_sucesos_simultaneos) #MAL
+            
+        #Equivocacion
+        equivocacion_canal=calcula_equivocacion_canal(matriz,probabilidades_simbolos) #listo
+            
+        #Entropía del canal Afín
+        entropia_afin= entropia_canal - equivocacion_canal
+
+        #Informacion Mutua
+        informacion_mutua=entropia_fuente-equivocacion_canal #listo
+
+        print("Entropía de la fuente o a-priori, H(A) =", entropia_fuente)
+        print("Entropia del canal, H(B) =", entropia_canal)
+        print("Entropia afín, H(A,B) =", entropia_afin)
+        print("Entropía a posteriori:")
+        i=0
+        for valor in entropia_a_posteriori:
+            print("H(A/B=",i,") = ",valor)
+            i=i+1
+        print("Equivocacion, H(A/B)=",equivocacion_canal)
+        print("Información mutua, I(A,B)=", informacion_mutua)
+
+        simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
+
+        mensaje_a_enviar=aplica_paridad_cruzada(simulacion_mensajes,flag_paridad_cruzada)
+
+        print("Mensaje a enviar")
+        for i in range(len(mensaje_a_enviar)):
+            print(mensaje_a_enviar[i])
+        mensaje_enviado_por_canal=enviar_mensaje_por_canal(matriz,mensaje_a_enviar)
+        
+        print("Mensaje enviado por canal")
+        prueba=np.array(mensaje_enviado_por_canal)
+        for i in range(len(prueba)):
+            print(prueba[i])
+
+        verificacion_y_correccion(mensaje_enviado_por_canal,flag_paridad_cruzada,n_mensajes)
+        
+    else:
+        print("Error en los parametros de entrada")
+        print("Ejemplo: python3 tp4.py probs.txt 100 100 -p")
+
+if __name__ == "__main__":
+    main()
