@@ -21,15 +21,7 @@ def simular_mensajes(matriz,probabilidades_simbolos,N,M):
     mensaje=[]
     for i in range(N):
         mensaje.append(np.random.choice(len(probabilidades_simbolos),M,probabilidades_simbolos)) #Crea N mensajes de longitud M
-    return mensaje
-
-def calcula_equivocacion_canal2(matriz,probabilidades_simbolos):
-    equivocacion_canal=0
-    for i in range(len(matriz)):
-        for j in range(len(matriz[i])):
-            if(matriz[i][j]!=0):
-                equivocacion_canal+=matriz[i][j]*probabilidades_simbolos[i]*np.log2(1/matriz[i][j]) #H(A/B)= sum (P(a,b) * log ( 1/P (a /b))) || P(a,b)=P(b/a)*P(b)
-    return equivocacion_canal
+    return mensaje  
 
 def calcula_equivocacion_canal(entropia_a_posteriori,probabilidades_salidas):
     equivocacion_canal=0
@@ -74,8 +66,9 @@ def calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_
     for j in range(len(matriz_probabilidades_sucesos_simultaneos[0])):
         x=0
         for i in range(len(matriz_probabilidades_sucesos_simultaneos)):
-            aux=matriz_probabilidades_sucesos_simultaneos[i][j]/probabilidades_salidas[j]
-            x+=aux*np.log2(1/aux)
+            if matriz_probabilidades_sucesos_simultaneos[i][j]!=0:
+                aux=matriz_probabilidades_sucesos_simultaneos[i][j]/probabilidades_salidas[j]
+                x+=aux*np.log2(1/aux)
         entropias_a_posteriori.append(x)
     print(entropias_a_posteriori)
     return entropias_a_posteriori
