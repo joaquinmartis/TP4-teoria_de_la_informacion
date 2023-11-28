@@ -60,9 +60,6 @@ def calcula_matriz_probabilidades_sucesos_simultaneos(matriz,probabilidades_simb
 
 def calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_sucesos_simultaneos):
     entropias_a_posteriori=[]
-    print(matriz_probabilidades_sucesos_simultaneos)
-    print(probabilidades_salidas)
-    
     for j in range(len(matriz_probabilidades_sucesos_simultaneos[0])):
         x=0
         for i in range(len(matriz_probabilidades_sucesos_simultaneos)):
@@ -70,7 +67,6 @@ def calcula_entropias_a_posteriori(probabilidades_salidas,matriz_probabilidades_
                 aux=matriz_probabilidades_sucesos_simultaneos[i][j]/probabilidades_salidas[j]
                 x+=aux*np.log2(1/aux)
         entropias_a_posteriori.append(x)
-    print(entropias_a_posteriori)
     return entropias_a_posteriori
 
 def aplica_paridad_cruzada(mensaje,flag_paridad_cruzada):
