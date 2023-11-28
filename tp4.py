@@ -243,13 +243,7 @@ def main():
         simulacion_mensajes=simular_mensajes(matriz,probabilidades_simbolos,n_mensajes,m_mensajes)
 
         mensaje_a_enviar=aplica_paridad_cruzada(simulacion_mensajes,flag_paridad_cruzada)
-        #aux=[[1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
-        #     [1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-        #     [0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1],
-        #     [0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],
-        #     [1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-        #     [1 ,0, 1, 1, 0, 1, 0, 1, 1, 0, 0]]
-        #mensaje_a_enviar=np.array(aux)
+        
         print("Mensaje a enviar")
         for i in range(len(mensaje_a_enviar)):
             print(mensaje_a_enviar[i])
